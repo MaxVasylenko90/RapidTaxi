@@ -1,13 +1,16 @@
 package dev.mvasylenko.rapidtaxi.service;
 
-import dev.mvasylenko.rapidtaxi.entity.User;
+import dev.mvasylenko.rapidtaxi.models.User;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Map;
 
 public interface UserService {
     /**
      * Service for user registration
      * @param user - user model with initial info
      */
-    void registerUser(User user);
+    void registerUser(User user) throws Exception;
 
     /**
      * Find user by username

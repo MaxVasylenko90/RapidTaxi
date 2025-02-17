@@ -1,4 +1,4 @@
-package dev.mvasylenko.rapidtaxi.entity;
+package dev.mvasylenko.rapidtaxi.models;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 public class User {
@@ -19,7 +18,6 @@ public class User {
     private String name;
 
     @NotBlank
-    @Length(min = 5, max = 20, message = "Password must be between 5 and 20 characters")
     private String password;
 
     private String role;
