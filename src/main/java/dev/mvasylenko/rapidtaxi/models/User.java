@@ -1,13 +1,11 @@
 package dev.mvasylenko.rapidtaxi.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Length;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +15,12 @@ public class User {
     @Length(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
     private String name;
 
+    @NotBlank(message = "Email is required")
+    @Column(unique = true, nullable = false)
+    private String email;
+
     @NotBlank
+    @Length(min = 5, max = 20, message = "Password must be between 5 and 20 characters")
     private String password;
 
     private String role;
@@ -48,6 +51,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setPassword(String password) {

@@ -1,0 +1,8 @@
+CREATE TABLE users(
+    id BIGSERIAL PRIMARY KEY,
+    name varchar(20) NOT NULL,
+    password varchar(20) NOT NULL,
+    role varchar
+);
+
+ALTER TABLE users ADD COLUMN email VARCHAR(50);

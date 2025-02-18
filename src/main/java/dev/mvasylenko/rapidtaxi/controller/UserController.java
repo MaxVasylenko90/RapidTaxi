@@ -1,5 +1,6 @@
 package dev.mvasylenko.rapidtaxi.controller;
 
+import dev.mvasylenko.rapidtaxi.dto.UserDto;
 import dev.mvasylenko.rapidtaxi.models.User;
 import dev.mvasylenko.rapidtaxi.service.UserService;
 import jakarta.validation.Valid;
@@ -21,14 +22,5 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/registration")
-    public ResponseEntity<String> registration(@RequestBody @Valid User user) {
-        try {
-            userService.registerUser(user);
-            return ResponseEntity.ok("User registered successfully!");
-        } catch (Exception e) {
-            logger.error("Error registering user: {}", e.getMessage());
-            return ResponseEntity.badRequest().body("Error registering user: " + e.getMessage());
-        }
-    }
+
 }
