@@ -39,9 +39,7 @@ public class UserServiceImpl implements UserService {
         user.setRole("GUEST");
         try {
             userRepository.save(user);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED).
-                    body(Collections.singletonMap("message", "User registered successfully!"));
+            return getResponseEntity(HttpStatus.CREATED, "User registered successfully!");
         } catch (Exception exception) {
             LOG.error("An exception occurred while saving user", exception);
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
