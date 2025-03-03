@@ -29,10 +29,7 @@ public class AuthController {
 
     @PostMapping("/registration")
     public ResponseEntity<Map<String, String>> registration(@RequestBody @Valid UserDto userDto) {
-        userService.registerUser(userDto);
-        return ResponseEntity
-                    .status(HttpStatus.CREATED).
-                    body(Collections.singletonMap("message", "User registered successfully!"));
+        return userService.registerUser(userDto);
     }
 
     @GetMapping("/terms")
