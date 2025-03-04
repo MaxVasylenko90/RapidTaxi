@@ -2,6 +2,7 @@ package dev.mvasylenko.rapidtaxi.service.impl;
 
 import dev.mvasylenko.rapidtaxi.dto.UserDto;
 import dev.mvasylenko.rapidtaxi.mapper.UserMapper;
+import dev.mvasylenko.rapidtaxi.models.Role;
 import dev.mvasylenko.rapidtaxi.models.User;
 import dev.mvasylenko.rapidtaxi.repository.UserRepository;
 import dev.mvasylenko.rapidtaxi.service.UserService;
@@ -32,13 +33,17 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public ResponseEntity<Map<String, String>> registerUser(UserDto userDto) {
         if (userRepository.existsByEmail(userDto.getEmail())) {
+            LOG.warn("Email already exists");
             return getResponseEntity(HttpStatus.CONFLICT,"Current Email Already Used!");
         }
+
         User user = UserMapper.INSTANCE.userDtoToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("GUEST");
+        user.setRole(Role.GUEST);
+
         try {
             userRepository.save(user);
+            LOG.info("User with email {} created successfully", user.getEmail());
             return getResponseEntity(HttpStatus.CREATED, "User registered successfully!");
         } catch (Exception exception) {
             LOG.error("An exception occurred while saving user", exception);

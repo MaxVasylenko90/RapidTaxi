@@ -6,3 +6,6 @@ CREATE TABLE users(
 );
 
 ALTER TABLE users ADD COLUMN email VARCHAR(50);
+
+CREATE TYPE role_enum AS ENUM('ADMIN', 'GUEST');
+ALTER TABLE users ALTER COLUMN role TYPE role_enum USING role::role_enum

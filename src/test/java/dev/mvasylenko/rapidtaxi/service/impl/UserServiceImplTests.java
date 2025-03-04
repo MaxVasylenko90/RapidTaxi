@@ -1,12 +1,12 @@
 package dev.mvasylenko.rapidtaxi.service.impl;
 
 import dev.mvasylenko.rapidtaxi.dto.UserDto;
-import dev.mvasylenko.rapidtaxi.mapper.UserMapper;
 import dev.mvasylenko.rapidtaxi.models.User;
 import dev.mvasylenko.rapidtaxi.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,7 +27,6 @@ public class UserServiceImplTests {
     private UserServiceImpl sut;
 
     private UserDto userDto;
-    private User user;
 
     @BeforeEach
     void setUp() {
@@ -35,22 +34,50 @@ public class UserServiceImplTests {
         userDto.setEmail("test@gmail.com");
         userDto.setPassword("password");
         userDto.setName("testName");
-
-        user = UserMapper.INSTANCE.userDtoToUser(userDto);
-
     }
 
     @Test
     void successfullyCreateUser() {
-        when(userRepository.existsByEmail(any())).thenReturn(Boolean.FALSE);
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        //Arrange
+        when(userRepository.existsByEmail(userDto.getEmail())).thenReturn(Boolean.FALSE);
         when(passwordEncoder.encode(userDto.getPassword())).thenReturn("encodedPassword");
 
+        //Act
         var response = sut.registerUser(userDto);
 
-        assertEquals("encodedPassword", user.getPassword());
+        //Assert
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository, times(1)).save(captor.capture());
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals("User registered successfully!", response.getBody().get("message"));
-        verify(userRepository.save(any(User.class)), times(1));
+        assertEquals("testName", captor.getValue().getName());
+        assertEquals("encodedPassword", captor.getValue().getPassword());
+        assertEquals("test@gmail.com", captor.getValue().getEmail());
+    }
+
+    @Test
+    void returnStatusConflictWhenEmailAlreadyExists() {
+        //Arrange
+        when(userRepository.existsByEmail(any())).thenReturn(Boolean.TRUE);
+
+        //Act
+        var response = sut.registerUser(userDto);
+
+        //Assert
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("Current Email Already Used!", response.getBody().get("message"));
+    }
+
+    @Test
+    void throwsExceptionWhenTryingToSaveUser() {
+        //Arrange
+        when(userRepository.save(any(User.class))).thenThrow(new RuntimeException());
+
+        //Act
+        var response = sut.registerUser(userDto);
+
+        //Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Something went wrong when tried to save user!", response.getBody().get("message"));
     }
 }

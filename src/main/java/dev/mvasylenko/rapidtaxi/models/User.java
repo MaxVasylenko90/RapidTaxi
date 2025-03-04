@@ -23,7 +23,8 @@ public class User {
     @NotBlank
     private String password;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     public User(long id, String name, String password) {
         this.id = id;
@@ -45,10 +46,6 @@ public class User {
         return password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -65,7 +62,11 @@ public class User {
         this.password = password;
     }
 
-    public void setRole(String role) {
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
         this.role = role;
     }
 }
