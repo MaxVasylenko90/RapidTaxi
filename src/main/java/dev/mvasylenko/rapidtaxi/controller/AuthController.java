@@ -5,7 +5,6 @@ import dev.mvasylenko.rapidtaxi.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +12,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
     private final Logger LOG = LoggerFactory.getLogger(AuthController.class);
 
@@ -31,6 +31,17 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> registration(@RequestBody @Valid UserDto userDto) {
         return userService.registerUser(userDto);
     }
+
+    @GetMapping("/login")
+    public Map<String, String> login() {
+        return Collections.singletonMap("message", "This is login page");
+    }
+
+//    @PostMapping("/login")
+//    public ResponseEntity<Map<String, String>> login(@RequestParam ("email") String email, @RequestParam ("password") String password) {
+//
+//
+//    }
 
     @GetMapping("/terms")
     public Map<String, String> termsAndConditions() {

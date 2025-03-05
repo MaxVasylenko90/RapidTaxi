@@ -1,11 +1,10 @@
-CREATE TABLE users(
-    id BIGSERIAL PRIMARY KEY,
-    name varchar(20) NOT NULL,
-    password varchar(20) NOT NULL,
-    role varchar
-);
-
-ALTER TABLE users ADD COLUMN email VARCHAR(50);
-
 CREATE TYPE role_enum AS ENUM('ADMIN', 'GUEST');
-ALTER TABLE users ALTER COLUMN role TYPE role_enum USING role::role_enum
+
+CREATE TABLE users(
+                      id BIGSERIAL PRIMARY KEY,
+                      name varchar(20) NOT NULL,
+                      password varchar(20) NOT NULL,
+                      role role_enum,
+                      phoneNumber varchar(9) NOT NULL,
+                      email varchar(30) NOT NULL UNIQUE
+);

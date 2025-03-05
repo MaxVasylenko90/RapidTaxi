@@ -3,7 +3,7 @@ package dev.mvasylenko.rapidtaxi.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +25,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^[0-9]{9}$", message = "Number should contain only 9 digits from 0 to 9")
+    private String phoneNumber;
+
 
     public User(long id, String name, String password) {
         this.id = id;
@@ -68,5 +73,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

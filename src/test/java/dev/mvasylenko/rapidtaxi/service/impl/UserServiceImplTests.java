@@ -34,6 +34,7 @@ public class UserServiceImplTests {
         userDto.setEmail("test@gmail.com");
         userDto.setPassword("password");
         userDto.setName("testName");
+        userDto.setPhoneNumber("123456789");
     }
 
     @Test
@@ -53,6 +54,7 @@ public class UserServiceImplTests {
         assertEquals("testName", captor.getValue().getName());
         assertEquals("encodedPassword", captor.getValue().getPassword());
         assertEquals("test@gmail.com", captor.getValue().getEmail());
+        assertEquals("123456789", captor.getValue().getPhoneNumber());
     }
 
     @Test
