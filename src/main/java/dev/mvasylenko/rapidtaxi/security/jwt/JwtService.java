@@ -1,4 +1,4 @@
-package dev.mvasylenko.rapidtaxi.security;
+package dev.mvasylenko.rapidtaxi.security.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetails;

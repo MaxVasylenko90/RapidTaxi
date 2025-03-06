@@ -1,6 +1,5 @@
-package dev.mvasylenko.rapidtaxi.configuration;
+package dev.mvasylenko.rapidtaxi.security.jwt;
 
-import dev.mvasylenko.rapidtaxi.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,5 +1,6 @@
-package dev.mvasylenko.rapidtaxi.controller;
+package dev.mvasylenko.rapidtaxi.authentication.controller;
 
+import dev.mvasylenko.rapidtaxi.authentication.service.AuthenticationService;
 import dev.mvasylenko.rapidtaxi.dto.UserDto;
 import dev.mvasylenko.rapidtaxi.service.UserService;
 import jakarta.validation.Valid;
@@ -15,11 +16,12 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
     private final Logger LOG = LoggerFactory.getLogger(AuthController.class);
-
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, AuthenticationService authenticationService) {
         this.userService = userService;
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/registration")
@@ -29,6 +31,7 @@ public class AuthController {
 
     @PostMapping("/registration")
     public ResponseEntity<Map<String, String>> registration(@RequestBody @Valid UserDto userDto) {
+        authenticationService.register(userDto);
         return userService.registerUser(userDto);
     }
 
@@ -43,8 +46,5 @@ public class AuthController {
 //
 //    }
 
-    @GetMapping("/terms")
-    public Map<String, String> termsAndConditions() {
-        return Collections.singletonMap("message", "This is Terms and Conditions page");
-    }
+
 }

@@ -1,12 +1,12 @@
-package dev.mvasylenko.rapidtaxi.security.impl;
+package dev.mvasylenko.rapidtaxi.security.jwt.impl;
 
-import dev.mvasylenko.rapidtaxi.security.JwtService;
+import dev.mvasylenko.rapidtaxi.security.jwt.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("jwtServiceImpl")
 public class JwtServiceImpl implements JwtService {
     private static final int EXPIRATION_TIME = 3600000;
     private final String secretKey;
