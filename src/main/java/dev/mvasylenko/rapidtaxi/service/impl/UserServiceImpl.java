@@ -2,8 +2,8 @@ package dev.mvasylenko.rapidtaxi.service.impl;
 
 import dev.mvasylenko.rapidtaxi.dto.UserDto;
 import dev.mvasylenko.rapidtaxi.mapper.UserMapper;
-import dev.mvasylenko.rapidtaxi.models.Role;
-import dev.mvasylenko.rapidtaxi.models.User;
+import dev.mvasylenko.rapidtaxi.model.Role;
+import dev.mvasylenko.rapidtaxi.model.User;
 import dev.mvasylenko.rapidtaxi.repository.UserRepository;
 import dev.mvasylenko.rapidtaxi.service.UserService;
 import jakarta.transaction.Transactional;

@@ -1,7 +1,7 @@
 package dev.mvasylenko.rapidtaxi.mapper;
 
 import dev.mvasylenko.rapidtaxi.dto.UserDto;
-import dev.mvasylenko.rapidtaxi.models.User;
+import dev.mvasylenko.rapidtaxi.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

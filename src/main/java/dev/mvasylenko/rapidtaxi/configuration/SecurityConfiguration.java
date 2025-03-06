@@ -1,9 +1,7 @@
 package dev.mvasylenko.rapidtaxi.configuration;
 
 import dev.mvasylenko.rapidtaxi.repository.UserRepository;
-import dev.mvasylenko.rapidtaxi.security.JwtService;
-import dev.mvasylenko.rapidtaxi.security.impl.CustomUserDetailsService;
-import dev.mvasylenko.rapidtaxi.security.impl.JwtServiceImpl;
+import dev.mvasylenko.rapidtaxi.security.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -60,11 +58,6 @@ public class SecurityConfiguration {
 
     @Bean
     public UserDetailsService getUserDetailsService(UserRepository userRepository) {
-        return new CustomUserDetailsService(userRepository);
-    }
-
-    @Bean
-    public JwtService getJwtService() {
-        return new JwtServiceImpl();
+        return new UserDetailsServiceImpl(userRepository);
     }
 }
