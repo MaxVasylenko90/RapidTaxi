@@ -1,4 +1,4 @@
-package dev.mvasylenko.rapidtaxi.models;
+package dev.mvasylenko.rapidtaxi.model;
 
 public enum Role {
     ADMIN,

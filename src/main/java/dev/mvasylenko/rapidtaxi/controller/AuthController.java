@@ -1,10 +1,10 @@
 package dev.mvasylenko.rapidtaxi.controller;
 
-import dev.mvasylenko.rapidtaxi.dto.UserDto;
-import dev.mvasylenko.rapidtaxi.service.UserService;
+import dev.mvasylenko.rapidtaxi.dto.UserRegistrationDto;
+import dev.mvasylenko.rapidtaxi.service.AuthenticationService;
+import dev.mvasylenko.rapidtaxi.dto.UserLoginDto;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +14,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final Logger LOG = LoggerFactory.getLogger(AuthController.class);
+    private final AuthenticationService authenticationService;
 
-    private final UserService userService;
-
-    public AuthController(UserService userService) {
-        this.userService = userService;
+    @Autowired
+    public AuthController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
     @GetMapping("/registration")
@@ -28,8 +27,8 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<Map<String, String>> registration(@RequestBody @Valid UserDto userDto) {
-        return userService.registerUser(userDto);
+    public ResponseEntity<Map<String, String>> registration(@RequestBody @Valid UserRegistrationDto userDto) {
+        return authenticationService.register(userDto);
     }
 
     @GetMapping("/login")
@@ -37,14 +36,8 @@ public class AuthController {
         return Collections.singletonMap("message", "This is login page");
     }
 
-//    @PostMapping("/login")
-//    public ResponseEntity<Map<String, String>> login(@RequestParam ("email") String email, @RequestParam ("password") String password) {
-//
-//
-//    }
-
-    @GetMapping("/terms")
-    public Map<String, String> termsAndConditions() {
-        return Collections.singletonMap("message", "This is Terms and Conditions page");
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid UserLoginDto userLoginDto) {
+        return authenticationService.authenticate(userLoginDto);
     }
 }

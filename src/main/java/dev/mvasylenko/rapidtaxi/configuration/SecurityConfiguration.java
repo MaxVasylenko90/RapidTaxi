@@ -1,12 +1,14 @@
 package dev.mvasylenko.rapidtaxi.configuration;
 
-import dev.mvasylenko.rapidtaxi.repository.UserRepository;
-import dev.mvasylenko.rapidtaxi.security.JwtService;
-import dev.mvasylenko.rapidtaxi.security.impl.CustomUserDetailsService;
-import dev.mvasylenko.rapidtaxi.security.impl.JwtServiceImpl;
+import dev.mvasylenko.rapidtaxi.security.jwt.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,11 +22,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authProvider;
+    private final UserDetailsService userDetailsService;
 
-    public SecurityConfiguration (JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authProvider) {
+    @Autowired
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter,
+                                 @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
-        this.authProvider = authProvider;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -32,20 +36,13 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/","/auth/**", "/terms").permitAll()
+                        .requestMatchers("/", "/auth/**", "/terms").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authProvider)
+                .authenticationProvider(getAuthenticationProvider(getPasswordEncoder(), userDetailsService))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .formLogin(formLogin -> formLogin
-                        .loginPage("/auth/login")
-                        .usernameParameter("email")
-                        .permitAll()
-                        .defaultSuccessUrl("/", true)
-                        .failureUrl("/auth/login?error")
-                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/auth/login")
@@ -54,17 +51,25 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public PasswordEncoder getPasswordEncoder() {
+    public static PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public UserDetailsService getUserDetailsService(UserRepository userRepository) {
-        return new CustomUserDetailsService(userRepository);
+    public AuthenticationProvider getAuthenticationProvider(PasswordEncoder passwordEncoder,
+                                                            UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
 
     @Bean
-    public JwtService getJwtService() {
-        return new JwtServiceImpl();
+    public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration authenticationConfiguration) {
+        try {
+            return authenticationConfiguration.getAuthenticationManager();
+        } catch (Exception e) {
+            throw new RuntimeException("Something went wrong when trying to get authentication manager: ", e);
+        }
     }
 }

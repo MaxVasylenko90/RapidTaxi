@@ -1,24 +1,24 @@
-package dev.mvasylenko.rapidtaxi.security.impl;
+package dev.mvasylenko.rapidtaxi.security.userDetails;
 
-import dev.mvasylenko.rapidtaxi.models.User;
 import dev.mvasylenko.rapidtaxi.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service
-public class CustomUserDetailsService implements UserDetailsService {
+@Service("userDetailsServiceImpl")
+public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
+    @Autowired
+    public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        return new CustomUserDetails(user);
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("User not found with email: %s", email)));
     }
 }

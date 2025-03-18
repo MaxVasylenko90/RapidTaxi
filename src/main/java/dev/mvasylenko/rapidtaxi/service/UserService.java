@@ -1,15 +1,13 @@
 package dev.mvasylenko.rapidtaxi.service;
 
 import dev.mvasylenko.rapidtaxi.dto.UserDto;
-import org.springframework.http.ResponseEntity;
-
-import java.util.Map;
 
 public interface UserService {
     /**
-     * Service for user registration
-     * @param userDto - userDto object with initial params
-     * @return -ResponseEntity with corresponded code
+     * Get user page
+     *
+     * @param email - user's email
+     * @return Map with all user information
      */
-    ResponseEntity<Map<String, String>>registerUser(UserDto userDto);
+    UserDto getUserPage(String email);
 }

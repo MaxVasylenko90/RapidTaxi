@@ -1,6 +1,6 @@
 package dev.mvasylenko.rapidtaxi.repository;
 
-import dev.mvasylenko.rapidtaxi.models.User;
+import dev.mvasylenko.rapidtaxi.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

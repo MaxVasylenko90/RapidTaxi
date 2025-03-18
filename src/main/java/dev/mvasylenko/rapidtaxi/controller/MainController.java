@@ -13,4 +13,9 @@ public class MainController {
     public Map<String, String> homePage() {
         return Collections.singletonMap("message", "Welcome to RapidTaxi API!");
     }
+
+    @GetMapping("/terms")
+    public Map<String, String> termsAndConditions() {
+        return Collections.singletonMap("message", "This is Terms and Conditions page");
+    }
 }
