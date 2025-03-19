@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,14 +33,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                                     AuthenticationManager authenticationManager, JwtService jwtService) {
+                                     AuthenticationManager authenticationManager, JwtService jwtService,
+                                     RedisTemplate<String, String> redisTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -49,8 +53,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         UserDetails userDetails = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User with current email wasn't found!"));
+        final var email = userDetails.getUsername();
 
-        return getResponseEntity(HttpStatus.OK, "accessToken", jwtService.generateAccessToken(userDetails));
+        return ResponseEntity.ok()
+                .body(Map.of("accessToken", jwtService.generateAccessToken(email),
+                        "refreshToken", createRefreshToken(email)));
     }
 
     @Override
@@ -70,6 +77,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         LOG.info("User with email {} created successfully", userDto.getEmail());
         return getResponseEntity(HttpStatus.CREATED, MESSAGE, "User registered successfully!");
+    }
+
+    private String createRefreshToken(String email) {
+        var refreshToken = jwtService.generateRefreshToken(email);
+        redisTemplate.opsForValue().set(refreshToken, email, jwtService.getRefreshTokenDuration(refreshToken));
+        return refreshToken;
     }
 
     private User createUserInstance(UserRegistrationDto userDto) {
