@@ -23,8 +23,8 @@ import java.util.function.Function;
 @Service("jwtServiceImpl")
 public class JwtServiceImpl implements JwtService {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtServiceImpl.class);
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 10;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 10;
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 1;
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String AUTHORIZATION = "Authorization";
 
@@ -39,24 +39,14 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateAccessToken(String email) {
-        return Jwts.builder()
-                .setClaims(new HashMap())
-                .setSubject(email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact();
+        return generateToken(email, ACCESS_TOKEN_EXPIRATION);
     }
 
     @Override
     public String generateRefreshToken(String email) {
-        return Jwts.builder()
-                .setClaims(new HashMap())
-                .setSubject(email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact();
+        final var refreshToken = generateToken(email, REFRESH_TOKEN_EXPIRATION);
+        redisTemplate.opsForValue().set(refreshToken, email, getRefreshTokenDuration(refreshToken));
+        return refreshToken;
     }
 
     @Override
@@ -83,7 +73,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean isRefreshTokenValid(String refreshToken) {
-        return redisTemplate.hasKey(refreshToken);
+        return redisTemplate.hasKey(refreshToken) ? validateToken(refreshToken) : Boolean.FALSE;
     }
 
     @Override
@@ -92,8 +82,17 @@ public class JwtServiceImpl implements JwtService {
         LOGGER.info("Refresh token {} was deleted.", refreshToken);
     }
 
-    @Override
-    public Duration getRefreshTokenDuration(String token) {
+    private String generateToken(String email, Long expiraion) {
+        return Jwts.builder()
+                .setClaims(new HashMap())
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiraion))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private Duration getRefreshTokenDuration(String token) {
         return extractClaim(token, claims ->
                 Duration.between(claims.getIssuedAt().toInstant(), claims.getExpiration().toInstant()));
     }

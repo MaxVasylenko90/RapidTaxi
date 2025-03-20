@@ -33,17 +33,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
-    private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                                     AuthenticationManager authenticationManager, JwtService jwtService,
-                                     RedisTemplate<String, String> redisTemplate) {
+                                     AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
-        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -57,7 +54,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return ResponseEntity.ok()
                 .body(Map.of("accessToken", jwtService.generateAccessToken(email),
-                        "refreshToken", createRefreshToken(email)));
+                        "refreshToken", jwtService.generateRefreshToken(email)));
+    }
+
+    @Override
+    public ResponseEntity<Map<String, String>> refreshAccessToken(String refreshToken) {
+        if (!jwtService.isRefreshTokenValid(refreshToken)) {
+            jwtService.deleteRefreshToken(refreshToken);
+            return getResponseEntity(HttpStatus.FORBIDDEN, MESSAGE, "Invalid refresh token. Please log in again.");
+        }
+        return getResponseEntity(HttpStatus.OK, "accessToken",
+                jwtService.generateAccessToken(jwtService.extractUsername(refreshToken)));
     }
 
     @Override
@@ -69,7 +76,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         try {
-            userRepository.save(createUserInstance(userDto));
+            userRepository.save(convertToUser(userDto));
         } catch (Exception exception) {
             LOG.error("An exception occurred while saving user", exception);
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE,
@@ -79,13 +86,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return getResponseEntity(HttpStatus.CREATED, MESSAGE, "User registered successfully!");
     }
 
-    private String createRefreshToken(String email) {
-        var refreshToken = jwtService.generateRefreshToken(email);
-        redisTemplate.opsForValue().set(refreshToken, email, jwtService.getRefreshTokenDuration(refreshToken));
-        return refreshToken;
-    }
-
-    private User createUserInstance(UserRegistrationDto userDto) {
+    private User convertToUser(UserRegistrationDto userDto) {
         User user = UserMapper.INSTANCE.userRegistrationDtoToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.GUEST);

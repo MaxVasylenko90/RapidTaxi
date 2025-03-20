@@ -20,4 +20,6 @@ public interface AuthenticationService {
      * @return - ResponseEntity with code and corresponding message
      */
     ResponseEntity<Map<String, String>> authenticate(UserLoginDto request);
+
+    ResponseEntity<Map<String, String>> refreshAccessToken(String refreshToken);
 }

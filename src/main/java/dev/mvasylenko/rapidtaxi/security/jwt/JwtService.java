@@ -14,6 +14,4 @@ public interface JwtService {
     boolean isRefreshTokenValid(String refreshToken);
 
     void deleteRefreshToken(String refreshToken);
-
-    Duration getRefreshTokenDuration(String token);
 }
