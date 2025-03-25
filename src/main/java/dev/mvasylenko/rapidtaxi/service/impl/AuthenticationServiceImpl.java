@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,10 +23,14 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Map;
 
+import static dev.mvasylenko.rapidtaxi.constants.Constants.MESSAGE;
+import static dev.mvasylenko.rapidtaxi.constants.Constants.REFRESH_TOKEN;
+
 @Service("authenticationServiceImpl")
 public class AuthenticationServiceImpl implements AuthenticationService {
-    public static final String MESSAGE = "message";
-    private final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+    private static final String ACCESS_TOKEN = "accessToken";
+    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -44,13 +47,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public ResponseEntity<Map<String, String>> authenticate(UserLoginDto loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        var email = loginRequest.getEmail();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, loginRequest.getPassword()));
+        return generateNewTokens(email);
+    }
 
-        UserDetails userDetails = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User with current email wasn't found!"));
-
-        return getResponseEntity(HttpStatus.OK, "accessToken", jwtService.generateAccessToken(userDetails));
+    @Override
+    public ResponseEntity<Map<String, String>> refreshAccessToken(String refreshToken) {
+        if (!jwtService.isRefreshTokenValid(refreshToken)) {
+            jwtService.deleteRefreshToken(refreshToken);
+            return getResponseEntity(HttpStatus.FORBIDDEN, MESSAGE, "Invalid refresh token. Please log in again.");
+        }
+        var email = jwtService.extractEmailFromTokenClaims(refreshToken);
+        jwtService.deleteRefreshToken(refreshToken);
+        return generateNewTokens(email);
     }
 
     @Override
@@ -62,7 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         try {
-            userRepository.save(createUserInstance(userDto));
+            userRepository.save(convertToUser(userDto));
         } catch (Exception exception) {
             LOG.error("An exception occurred while saving user", exception);
             return getResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, MESSAGE,
@@ -72,14 +82,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return getResponseEntity(HttpStatus.CREATED, MESSAGE, "User registered successfully!");
     }
 
-    private User createUserInstance(UserRegistrationDto userDto) {
+    private ResponseEntity<Map<String, String>> getResponseEntity(HttpStatus status, String key, String value) {
+        return ResponseEntity.status(status).body(Collections.singletonMap(key, value));
+    }
+
+    private ResponseEntity<Map<String, String>> generateNewTokens(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User with current email wasn't found!"));
+        return ResponseEntity.ok()
+                .body(Map.of(ACCESS_TOKEN, jwtService.generateAccessToken(user),
+                        REFRESH_TOKEN, jwtService.generateRefreshToken(user)));
+    }
+
+    private User convertToUser(UserRegistrationDto userDto) {
         User user = UserMapper.INSTANCE.userRegistrationDtoToUser(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.GUEST);
         return user;
-    }
-
-    private ResponseEntity<Map<String, String>> getResponseEntity(HttpStatus status, String key, String value) {
-        return ResponseEntity.status(status).body(Collections.singletonMap(key, value));
     }
 }

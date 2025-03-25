@@ -16,8 +16,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    public static final String ERROR = "error";
-    private final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final String ERROR = "error";
+    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleBadCredentialsException(BadCredentialsException exception) {
         LOG.warn("Bad credentials!", exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Collections.singletonMap("error", exception.getMessage()));
+                .body(Collections.singletonMap(ERROR, exception.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -46,6 +46,6 @@ public class GlobalExceptionHandler {
         LOG.error("ERROR HAPPENED: ", exception);
         LOG.error("Exception class: {}", exception.getClass().getName());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("error", "Something went wrong!"));
+                .body(Collections.singletonMap(ERROR, "Something went wrong!"));
     }
 }

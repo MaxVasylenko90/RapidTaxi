@@ -6,16 +6,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.Map;
 
+import static dev.mvasylenko.rapidtaxi.constants.Constants.MESSAGE;
+
 @RestController
 public class MainController {
 
     @GetMapping
     public Map<String, String> homePage() {
-        return Collections.singletonMap("message", "Welcome to RapidTaxi API!");
+        return Collections.singletonMap(MESSAGE, "Welcome to RapidTaxi API!");
     }
 
     @GetMapping("/terms")
     public Map<String, String> termsAndConditions() {
-        return Collections.singletonMap("message", "This is Terms and Conditions page");
+        return Collections.singletonMap(MESSAGE, "This is Terms and Conditions page");
     }
 }

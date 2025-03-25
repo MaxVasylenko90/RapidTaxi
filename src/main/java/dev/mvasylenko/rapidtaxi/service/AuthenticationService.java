@@ -15,9 +15,16 @@ public interface AuthenticationService {
     ResponseEntity<Map<String, String>> register(UserRegistrationDto userDto);
 
     /**
-     * USer authentication
+     * User authentication
      * @param request - (LoginRequestDto with credentials
      * @return - ResponseEntity with code and corresponding message
      */
     ResponseEntity<Map<String, String>> authenticate(UserLoginDto request);
+
+    /**
+     * Request ro refresh access token
+     * @param refreshToken - old refresh token
+     * @return - Map with new access and refresh tokens
+     */
+    ResponseEntity<Map<String, String>> refreshAccessToken(String refreshToken);
 }
