@@ -8,10 +8,10 @@ import java.util.Map;
 
 import static dev.mvasylenko.rapidtaxi.constants.Constants.MESSAGE;
 
-@RestController
+@RestController("/")
 public class MainController {
 
-    @GetMapping
+    @GetMapping()
     public Map<String, String> homePage() {
         return Collections.singletonMap(MESSAGE, "Welcome to RapidTaxi API!");
     }
