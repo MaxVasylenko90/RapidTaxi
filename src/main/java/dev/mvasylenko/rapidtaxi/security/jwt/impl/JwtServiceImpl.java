@@ -25,6 +25,7 @@ public class JwtServiceImpl implements JwtService {
     private static final Logger LOG = LoggerFactory.getLogger(JwtServiceImpl.class);
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 5;
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 5;
+    private static final String ROLE = "role";
 
     private final SecretKey secretKey;
     private final RedisTemplate<String, String> redisTemplate;
@@ -79,7 +80,7 @@ public class JwtServiceImpl implements JwtService {
 
     private String generateToken(User user, Long expiration) {
         return Jwts.builder()
-                .setClaims(Map.of("role", user.getRole().name()))
+                .setClaims(Map.of(ROLE, user.getRole().name()))
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

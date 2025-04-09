@@ -23,12 +23,10 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Map;
 
-import static dev.mvasylenko.rapidtaxi.constants.Constants.MESSAGE;
-import static dev.mvasylenko.rapidtaxi.constants.Constants.REFRESH_TOKEN;
+import static dev.mvasylenko.rapidtaxi.constants.Constants.*;
 
 @Service("authenticationServiceImpl")
 public class AuthenticationServiceImpl implements AuthenticationService {
-    private static final String ACCESS_TOKEN = "accessToken";
     private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 
     private final UserRepository userRepository;

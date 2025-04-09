@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.Map;
 
-import static dev.mvasylenko.rapidtaxi.constants.Constants.MESSAGE;
-import static dev.mvasylenko.rapidtaxi.constants.Constants.REFRESH_TOKEN;
+import static dev.mvasylenko.rapidtaxi.constants.Constants.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+    private static final String GOOGLE_LOGIN = "googleLogin";
+    private static final String FACEBOOK_LOGIN = "facebookLogin";
+    public static final String OAUTH_2_AUTHORIZATION_GOOGLE_LINK = "http://localhost:8081/oauth2/authorization/google";
+    public static final String OAUTH_2_AUTHORIZATION_FACEBOOK_LINK = "http://localhost:8081/oauth2/authorization/facebook";
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
 
@@ -39,7 +42,9 @@ public class AuthController {
 
     @GetMapping("/login")
     public Map<String, String> login() {
-        return Collections.singletonMap(MESSAGE, "This is login page");
+        return Map.of(MESSAGE, "This is login page",
+                GOOGLE_LOGIN, OAUTH_2_AUTHORIZATION_GOOGLE_LINK,
+                FACEBOOK_LOGIN, OAUTH_2_AUTHORIZATION_FACEBOOK_LINK);
     }
 
     @PostMapping("/login")
