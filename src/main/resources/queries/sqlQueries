@@ -1,10 +1,57 @@
 CREATE TYPE role_enum AS ENUM('ADMIN', 'GUEST');
 
+CREATE TYPE currency_enum AS ENUM('EUR', 'USD', 'CZK');
+
 CREATE TABLE users(
-                      id BIGSERIAL PRIMARY KEY,
-                      name varchar(20) NOT NULL,
-                      password varchar(20) NOT NULL,
-                      role role_enum,
-                      phoneNumber varchar(9) NOT NULL,
-                      email varchar(30) NOT NULL UNIQUE
+id BIGSERIAL PRIMARY KEY,
+name VARCHAR(20) NOT NULL,
+password VARCHAR(20) NOT NULL,
+role role_enum,
+phoneNumber VARCHAR(9) NOT NULL,
+email VARCHAR(30) NOT NULL UNIQUE
 );
+
+CREATE TABLE address (
+id BIGSERIAL PRIMARY KEY,
+street VARCHAR(50) NOT NULL,
+streetNumber VARCHAR(5) NOT NULL,
+city VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE salary (
+id BIGSERIAL PRIMARY KEY,
+value NUMERIC(10, 2) NOT NULL,
+currency VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE passenger (
+id BIGINT PRIMARY KEY REFERENCES users(id)
+);
+
+CREATE TABLE car (
+id BIGSERIAL PRIMARY KEY,
+driver_id BIGINT,
+brand VARCHAR(50) NOT NULL,
+carnumber VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE driver (
+id BIGINT PRIMARY KEY REFERENCES users(id),
+licence VARCHAR(50) NOT NULL,
+car_id BIGINT NOT NULL,
+salary_id BIGINT REFERENCES salary(id)
+);
+
+ALTER TABLE driver ADD CONSTRAINT fk_driver_car FOREIGN KEY (car_id) REFERENCES car(id)
+ALTER TABLE car ADD CONSTRAINT fk_car_driver FOREIGN KEY (driver_id) REFERENCES driver(id)
+
+CREATE TABLE ride (
+id BIGSERIAL PRIMARY KEY,
+driver_id BIGINT NOT NULL REFERENCES driver(id),
+passenger_id BIGINT NOT NULL REFERENCES passenger(id),
+pickup_address_id BIGINT NOT NULL REFERENCES address(id),
+dropoff_address_id BIGINT NOT NULL REFERENCES address(id),
+distance DOUBLE PRECISION CHECK (distance >= 0),
+cost NUMERIC(10,2) CHECK (cost >= 0)
+);
+
