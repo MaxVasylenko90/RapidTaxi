@@ -1,4 +1,4 @@
-package dev.mvasylenko.rapidtaxi.exception;
+package dev.mvasylenko.rapidtaxi.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

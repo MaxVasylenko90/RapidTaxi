@@ -13,7 +13,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -36,11 +37,11 @@ public class User implements UserDetails {
     @Pattern(regexp = "^[0-9]{9}$", message = "Number should contain only 9 digits from 0 to 9")
     private String phoneNumber;
 
-
-    public User(long id, String name, String password) {
-        this.id = id;
+    public User(String name, String password, String phoneNumber, String email) {
         this.name = name;
         this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
     }
 
     public User() {}
